@@ -15,22 +15,28 @@ def read_csv(file_name):
             # If row has fewer than 3 columns, fill in empty strings for missing columns
             people.append([row[0] if len(row) > 0 else '',
                            row[1] if len(row) > 1 else '',
-                           row[2] if len(row) > 2 else ''])
+                           int(row[2]) if (len(row) > 2 and row[2] != '') else 10])
     return people
 
-def create_teams(people):
-    teams = {f"Team {i+1}": [] for i in range(8)}  # Initialize teams
+def create_teams(people, num):
+    teams = {f"Team {i+1}": [] for i in range(num)}  # Initialize teams
     team_count = len(people)
 
-    # place people that needs to be separated to start of list
-    separate_group = [person for person in people if person[2] == "1"]
-    non_separate_group = [person for person in people if person[2] != "1"]
-    random.shuffle(separate_group)
-    random.shuffle(non_separate_group)
-    rearranged = separate_group + non_separate_group
+    # randomize the order and sort again
+    random.shuffle(people)
+    people.sort(key=lambda x:x[2])
     
-    for i, person in enumerate(rearranged):
-        team_num = i % 8  # Distribute people evenly across teams
+    # # rearrange people
+    # rearranged = {}
+    # for person in people:
+    #     if (person[2] in rearranged.keys()): 
+    #         rearranged[person[2]].append(person)
+    #     else:
+    #         rearranged[person[2]] = [person]
+    # # print(rearranged)
+    
+    for i, person in enumerate(people):
+        team_num = i % num  # Distribute people evenly across teams
         team_name = f"Team {team_num + 1}"
         teams[team_name].append(person)
     
@@ -58,5 +64,5 @@ if __name__ == '__main__':
 
     file_name = sys.argv[1]
     people = read_csv(file_name)
-    teams = create_teams(people)
+    teams = create_teams(people, 8)
     print_teams(teams)
