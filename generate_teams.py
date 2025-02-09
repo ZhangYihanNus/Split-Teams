@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import csv
 import sys
 import random
@@ -26,14 +27,16 @@ def create_teams(people, num):
     random.shuffle(people)
     people.sort(key=lambda x:x[2])
     
-    # # rearrange people
-    # rearranged = {}
-    # for person in people:
-    #     if (person[2] in rearranged.keys()): 
-    #         rearranged[person[2]].append(person)
-    #     else:
-    #         rearranged[person[2]] = [person]
-    # # print(rearranged)
+    '''
+    # rearrange people into dictionry 
+    rearranged = {}
+    for person in people:
+        if (person[2] in rearranged.keys()): 
+            rearranged[person[2]].append(person)
+        else:
+            rearranged[person[2]] = [person]
+    # print(rearranged)
+    '''
     
     for i, person in enumerate(people):
         team_num = i % num  # Distribute people evenly across teams
@@ -57,12 +60,28 @@ def print_teams(teams):
             print(f'{member[0]}')
         print()
 
+def save_teams_to_csv(teams, output_file):
+    # Saves the teams into a CSV file.
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["Team", "English Name", "Chinese Name", "Separate"])  # Write header
+        for team_name, members in teams.items():
+            for member in members:
+                csvwriter.writerow([team_name] + member)  # Write team and member details
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: python3 script.py <csv_file>")
         sys.exit(1)
-
     file_name = sys.argv[1]
     people = read_csv(file_name)
+
+    # Create teams and print
     teams = create_teams(people, 8)
     print_teams(teams)
+
+    # Output CSV file name based on the input file name
+    base_name = os.path.splitext(os.path.basename(file_name))[0]
+    output_file = f"{base_name}_teams.csv"
+    save_teams_to_csv(teams, output_file)
